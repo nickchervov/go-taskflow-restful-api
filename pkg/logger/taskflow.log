@@ -1,0 +1,15 @@
+{"time":"2026-07-03T23:26:48.6184339+03:00","level":"INFO","msg":"Запускаю сервер на порту: :8080","service":"taskflow"}
+{"time":"2026-07-03T23:27:28.5958836+03:00","level":"INFO","msg":"Запускаю сервер на порту: :8080","service":"taskflow"}
+{"time":"2026-07-03T23:27:32.2327633+03:00","level":"INFO","msg":"incoming TasksList request","service":"taskflow","method":"GET","path":"/api/v1/tasks","remote":"[::1]:64322"}
+{"time":"2026-07-03T23:27:32.2338904+03:00","level":"INFO","msg":"OK get tasks list","service":"taskflow","len":7}
+{"time":"2026-07-03T23:27:33.3633579+03:00","level":"INFO","msg":"incoming TasksList request","service":"taskflow","method":"GET","path":"/api/v1/tasks","remote":"[::1]:64322"}
+{"time":"2026-07-03T23:27:33.3649915+03:00","level":"INFO","msg":"OK get tasks list","service":"taskflow","len":7}
+{"time":"2026-07-03T23:27:34.0683155+03:00","level":"INFO","msg":"incoming TasksList request","service":"taskflow","method":"GET","path":"/api/v1/tasks","remote":"[::1]:64322"}
+{"time":"2026-07-03T23:27:34.0698965+03:00","level":"INFO","msg":"OK get tasks list","service":"taskflow","len":7}
+{"time":"2026-07-03T23:27:38.0488201+03:00","level":"INFO","msg":"incoming TasksList request","service":"taskflow","method":"GET","path":"/api/v1/tasks","remote":"[::1]:64322"}
+{"time":"2026-07-03T23:27:38.0504296+03:00","level":"INFO","msg":"OK get tasks list","service":"taskflow","len":7}
+{"time":"2026-07-03T23:27:42.0840192+03:00","level":"INFO","msg":"incoming CreateTask request","service":"taskflow","method":"POST","path":"/api/v1/tasks","remote":"[::1]:64322"}
+{"time":"2026-07-03T23:27:42.0892052+03:00","level":"INFO","msg":"worker picked up task","service":"taskflow","task_id":"a4620500-771d-11f1-b73f-0250405b58bb","task_type":"send_email"}
+{"time":"2026-07-03T23:27:42.0897901+03:00","level":"INFO","msg":"task created","service":"taskflow","task_id":"a4620500-771d-11f1-b73f-0250405b58bb"}
+{"time":"2026-07-03T23:28:23.1026296+03:00","level":"INFO","msg":"Запускаю сервер на порту: :8080","service":"taskflow"}
+{"time":"2026-07-03T23:28:29.4818499+03:00","level":"INFO","msg":"Запускаю сервер на порту: :8080","service":"taskflow"}
