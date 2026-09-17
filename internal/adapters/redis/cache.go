@@ -1,10 +1,10 @@
-package cache
+package redis
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"restful-taskflow/internal/model"
+	"restful-taskflow/internal/domain"
 	"time"
 
 	"github.com/google/uuid"
@@ -24,7 +24,7 @@ func NewCache(redisUrl string) *Cache {
 	}
 }
 
-func (c *Cache) CacheTaskStatusResult(ctx context.Context, taskResultStatus model.TaskStatusResult) error {
+func (c *Cache) CacheTaskStatusResult(ctx context.Context, taskResultStatus domain.TaskStatusResult) error {
 	key := fmt.Sprintf("task:%s:status-result", taskResultStatus.ID)
 	data, err := json.Marshal(taskResultStatus)
 	if err != nil {
@@ -36,16 +36,16 @@ func (c *Cache) CacheTaskStatusResult(ctx context.Context, taskResultStatus mode
 	return nil
 }
 
-func (c *Cache) GetTaskStatusResultFromCache(ctx context.Context, uuid uuid.UUID) (model.TaskStatusResult, error) {
+func (c *Cache) GetTaskStatusResultFromCache(ctx context.Context, uuid uuid.UUID) (domain.TaskStatusResult, error) {
 	key := fmt.Sprintf("task:%s:status-result", uuid)
 
 	data, err := c.rdb.Get(ctx, key).Result()
 	if err != nil {
-		return model.TaskStatusResult{}, fmt.Errorf("get task status result from cache: %w", err)
+		return domain.TaskStatusResult{}, fmt.Errorf("get task status result from cache: %w", err)
 	}
-	var statusResult model.TaskStatusResult
+	var statusResult domain.TaskStatusResult
 	if err := json.Unmarshal([]byte(data), &statusResult); err != nil {
-		return model.TaskStatusResult{}, fmt.Errorf("deserializing status result from cache: %w", err)
+		return domain.TaskStatusResult{}, fmt.Errorf("deserializing status result from cache: %w", err)
 	}
 	return statusResult, nil
 }

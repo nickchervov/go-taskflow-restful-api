@@ -1,4 +1,4 @@
-package model
+package domain
 
 import (
 	"encoding/json"
@@ -20,6 +20,10 @@ type Task struct {
 	CompletedAt time.Time       `json:"completed_at,omitempty"`
 	RetryCount  int             `json:"retry_count,omitempty"`
 	MaxRetries  int             `json:"max_retries,omitempty"` // max 3
+}
+
+func NewTask(Type, status string, payload json.RawMessage) Task {
+	return Task{Type: Type, Status: status, Payload: payload, CreatedAt: time.Now(), MaxRetries: 3}
 }
 
 type TaskLog struct {

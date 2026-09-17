@@ -8,47 +8,57 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"restful-taskflow/internal/server"
-	"restful-taskflow/internal/store/cache"
-	"restful-taskflow/internal/store/postgres"
+
+	"restful-taskflow/internal/adapters/postgres"
+	"restful-taskflow/internal/adapters/redis"
+	"restful-taskflow/internal/connectors"
+	"restful-taskflow/internal/usecase"
 	"restful-taskflow/internal/worker"
-	"restful-taskflow/pkg/config"
+	"restful-taskflow/pkg/httpserver"
 	"restful-taskflow/pkg/logger"
 	"syscall"
 	"time"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	config := config.NewConfig()
-	if err := config.Load(); err != nil {
-		log.Fatalf("load config: %v", err)
-	}
+	_ = godotenv.Load(".env")
 
-	logger, err := logger.New(config.LOG_LEVEL, config.LOG_FORMAT)
+	logger, err := logger.New(os.Getenv("LOG_LEVEL"), os.Getenv("LOG_FORMAT"))
 	if err != nil {
 		log.Fatalf("create logger")
 	}
 	slog.SetDefault(logger)
 
-	db, err := postgres.InitDb(context.Background(), config.DATABASE_URL)
-	if err != nil {
-		slog.Error("connect db", "error", err)
-		os.Exit(1)
-	}
-	defer db.Close()
-
 	stopCtx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 
-	cache := cache.NewCache(config.REDIS_URL)
-	repository := postgres.NewRepository(db, cache)
+	cache := redis.NewCache(os.Getenv("REDIS_URL"))
+	repository, err := postgres.NewRepository(context.Background(), os.Getenv("DATABASE_URL"))
+	if err != nil {
+		slog.Error("creating repository", "error", err)
+		os.Exit(1)
+	}
 
-	pool := worker.NewWorkerPool(stopCtx, cancel, config.WORKER_COUNT, repository)
+	poolCtx, poolCancel := context.WithCancel(context.Background())
+	defer poolCancel()
+
+	pool, err := worker.NewWorkerPool(poolCtx, poolCancel, os.Getenv("WORKER_COUNT"), repository, cache)
+	if err != nil {
+		slog.Error("creating worker pool", "error", err)
+		os.Exit(1)
+	}
 	pool.Start()
 
-	handler := server.NewHandler(repository)
-	router := handler.SetRoutes(config.RATE_LIMIT)
-	server := server.NewServer(router)
+	svc := usecase.NewTaskflowService(repository, cache)
+
+	router, err := connectors.SetRoutes(svc, os.Getenv("RATE_LIMIT"))
+	if err != nil {
+		slog.Error("creating router", "error", err)
+		os.Exit(1)
+	}
+	server := httpserver.NewServer(router)
 
 	slog.Info("starting server", "port", server.Addr)
 	go func() {
@@ -61,8 +71,6 @@ func main() {
 	<-stopCtx.Done()
 	slog.Info("starting graceful shutdown")
 
-	pool.Stop()
-
 	timeoutContext, stop := context.WithTimeout(context.Background(), 5*time.Second)
 	defer stop()
 
@@ -71,4 +79,6 @@ func main() {
 		os.Exit(1)
 	}
 	slog.Info("server is stopped")
+
+	pool.Stop()
 }

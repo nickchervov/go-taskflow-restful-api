@@ -7,23 +7,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func InitDb(ctx context.Context, dbURL string) (*pgxpool.Pool, error) {
-	dbConfig, err := pgxpool.ParseConfig(dbURL)
-	if err != nil {
-		return nil, fmt.Errorf("creating db config: %w", err)
-	}
-	dbPool, err := pgxpool.NewWithConfig(ctx, dbConfig)
-	if err != nil {
-		return nil, fmt.Errorf("connecting postgres db: %w", err)
-	}
-
-	err = createTables(ctx, dbPool)
-	if err != nil {
-		return nil, err
-	}
-	return dbPool, nil
-}
-
 func createTables(ctx context.Context, db *pgxpool.Pool) error {
 	_, err := db.Exec(ctx, `
 	create table if not exists tasks (
