@@ -11,7 +11,7 @@ import (
 
 	"restful-taskflow/internal/adapters/postgres"
 	"restful-taskflow/internal/adapters/redis"
-	"restful-taskflow/internal/connectors"
+	"restful-taskflow/internal/controllers"
 	"restful-taskflow/internal/usecase"
 	"restful-taskflow/internal/worker"
 	"restful-taskflow/pkg/httpserver"
@@ -53,7 +53,7 @@ func main() {
 
 	svc := usecase.NewTaskflowService(repository, cache)
 
-	router, err := connectors.SetRoutes(svc, os.Getenv("RATE_LIMIT"))
+	router, err := controllers.SetRoutes(svc, os.Getenv("RATE_LIMIT"))
 	if err != nil {
 		slog.Error("creating router", "error", err)
 		os.Exit(1)
